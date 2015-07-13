@@ -1,10 +1,7 @@
 #MatrixApp3.0 - first version of a functioning network analysis
-# done - upload to GitHub
 # Example 3
 library(shiny)
 library(igraph)
-# How do we get the first two columns of graph.data.frame to not be treated as
-# an "edge list"?
 
 # can use source instead to call Sociomatrix.R, but must save it in the app's folder
 wom <- read.csv("WOMResearchers.csv", header = T, strip.white = T) # remove extra spaces in the middle with strip.white
@@ -73,15 +70,23 @@ output$text1 <- renderText({
 })
 
 output$text2 <- renderText({
-  paste(colnames(sociomatrix)[sociomatrix[input$selection,] == 1], ",")
+  sociodfReduced <- colnames(sociodf)[which(sociodf[input$selection,] == 1)]
+  if (identical(sociodfReduced,character(0))) {
+    paste(input$selection, " does not have any collaborators.")
+  }
+  else {paste(colnames(sociomatrix)[sociomatrix[input$selection,] == 1], ",")}
 })
 
 output$network <- renderPlot({
   sociodfFirst <- sociodf[input$selection,1]
   sociodfReduced <- colnames(sociodf)[which(sociodf[input$selection,] == 1)]
-  combined <- merge(sociodfFirst,sociodfReduced)
-  sociogdf <- graph.data.frame(combined)
-  plot(sociogdf)
+  if (identical(sociodfReduced,character(0))) {
+  }
+  else{
+    combined <- merge(sociodfFirst,sociodfReduced)
+    sociogdf <- graph.data.frame(combined)
+    plot(sociogdf)
+  }
   })
 })
 shinyApp(ui = ui, server = server) #run the app with shinyApp()
